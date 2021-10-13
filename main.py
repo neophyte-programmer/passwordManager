@@ -1,6 +1,29 @@
+from cryptography.fernet import Fernet
+
 # This program organises and stores your passwords however,
 # it is a beginner attempt so don't store your actual passwords in it
-masterPassword = input("What is the master password? ")
+
+# the writeKey function generates an encryption key
+
+'''
+def writeKey():
+    key = Fernet.generate_key()
+    with open('key.key', 'wb') as keyFile:
+        keyFile.write(key)
+'''
+
+
+def loadKey():
+    file = open('key.key', 'rb')
+    key = file.read()
+    file.close()
+    return key
+
+
+
+
+key = loadKey() + masterPassword.encode()
+fer = Fernet(key)
 
 
 def view():
@@ -8,14 +31,16 @@ def view():
         for line in f.readlines():
             data = line.rstrip()
             user, passwd = data.split("|")
-            print("User:", user, "| Password:", passwd)
+            print("User:", user, "| Password:", fer.decrypt(passwd.encode()).decode()   )
+
 
 def add():
     name = input("Account name: ")
     pwd = input("Password: ")
 
     with open('passwords.txt', 'a') as f:
-        f.write(name + " | " + pwd + "\n")
+        f.write(name + " | " + fer.encrypt(pwd.encode()).decode() + "\n")
+
 
 """
     1. Using the with keyword allows for the file to automatically close after using it
